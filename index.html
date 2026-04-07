@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🏔️ Himachal Trip Expenses</title>
+
+  <!-- Firebase SDKs (compat v9) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    // TODO: Add SDKs for Firebase products that you want to use
+    // https://firebase.google.com/docs/web/setup#available-libraries
+  
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAp6xXe7Knx3_CP59tXMkH29fUdlnLG5xY",
+      authDomain: "himachal-8f53f.firebaseapp.com",
+      projectId: "himachal-8f53f",
+      storageBucket: "himachal-8f53f.firebasestorage.app",
+      messagingSenderId: "477257354813",
+      appId: "1:477257354813:web:1204a406275dd0057c6454"
+    };
+  
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+  </script>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Font Awesome -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --primary:   #1a6b3a;
+      --secondary: #2d9e5f;
+      --accent:    #f4a261;
+      --bg:        #f0f7f4;
+      --card:      #ffffff;
+      --text:      #1e293b;
+      --muted:     #64748b;
+      --border:    #e2e8f0;
+    }
+    body { background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text); }
+
+    /* ── Navbar ── */
+    .navbar { background: linear-gradient(135deg, #1a6b3a, #0f4d2a) !important; box-shadow: 0 2px 20px rgba(0,0,0,.15); }
+    .navbar-brand { font-size: 1.15rem; font-weight: 700; color: #fff !important; }
+
+    /* ── Tabs ── */
+    .nav-tabs { border: none; background: #fff; border-radius: 12px; padding: 4px; box-shadow: 0 1px 8px rgba(0,0,0,.08); }
+    .nav-tabs .nav-link { border: none; border-radius: 8px; color: var(--muted); font-weight: 500; padding: 8px 14px; transition: all .2s; }
+    .nav-tabs .nav-link.active { background: var(--primary); color: #fff; }
+    .nav-tabs .nav-link:hover:not(.active) { background: var(--bg); color: var(--text); }
+
+    /* ── Cards ── */
+    .card { border: none; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+    .expense-card { border-left: 4px solid var(--secondary); transition: transform .18s, box-shadow .18s; }
+    .expense-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.1); }
+
+    /* ── Badges ── */
+    .tag { font-size: .72rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; display: inline-block; }
+    .cat-food       { background:#fef3c7; color:#92400e; }
+    .cat-travel     { background:#dbeafe; color:#1e40af; }
+    .cat-hotel      { background:#ede9fe; color:#4c1d95; }
+    .cat-activities { background:#d1fae5; color:#064e3b; }
+    .cat-shopping   { background:#fce7f3; color:#831843; }
+    .cat-misc       { background:#f1f5f9; color:#475569; }
+    .mode-upi    { background:#e0f2fe; color:#0369a1; }
+    .mode-cash   { background:#f0fdf4; color:#166534; }
+    .mode-credit { background:#fff7ed; color:#9a3412; }
+    .mode-debit  { background:#fdf4ff; color:#6b21a8; }
+
+    /* ── Hero ── */
+    .hero-banner { background: linear-gradient(135deg, #1a6b3a, #0a3d1f); color: #fff; border-radius: 20px; padding: 22px 24px; }
+
+    /* ── Amount ── */
+    .amount-lg { font-size: 1.35rem; font-weight: 700; color: var(--primary); }
+
+    /* ── Avatars ── */
+    .avatar { width: 34px; height: 34px; min-width: 34px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .82rem; }
+    .avatar-sm { width: 26px; height: 26px; min-width: 26px; font-size: .72rem; }
+
+    /* ── Split pills ── */
+    .split-pill { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 10px; border: 2px solid var(--border); cursor: pointer; user-select: none; transition: all .18s; font-size: .88rem; }
+    .split-pill.on { border-color: var(--secondary); background: #f0fdf4; }
+
+    /* ── Settlement ── */
+    .settle-row { background: #f8fafc; border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+    .balance-pos { color: #16a34a; }
+    .balance-neg { color: #dc2626; }
+
+    /* ── Forms ── */
+    .form-control, .form-select { border-radius: 10px; border: 1px solid var(--border); padding: 9px 13px; }
+    .form-control:focus, .form-select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(45,158,95,.12); }
+    .btn-primary { background: var(--primary); border: none; border-radius: 10px; font-weight: 600; }
+    .btn-primary:hover, .btn-primary:active { background: var(--secondary) !important; border: none; }
+
+    /* ── Setup / Lock screens ── */
+    .full-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a6b3a 0%, #0a3d1f 100%); }
+    .setup-box { max-width: 620px; width: 100%; border-radius: 24px; padding: 40px; background: #fff; }
+
+    /* ── Empty state ── */
+    .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty i { font-size: 2.8rem; opacity: .35; display: block; margin-bottom: 12px; }
+
+    /* ── Filter bar ── */
+    .filter-bar { background: #fff; border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+
+    /* ── Photo thumbnail ── */
+    .photo-thumb { width: 52px; height: 52px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid var(--border); }
+
+    /* ── Admin ── */
+    .member-row { background: #f8fafc; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
+
+    /* ── Progress bar ── */
+    .prog-bar { height: 7px; border-radius: 10px; background: #e2e8f0; overflow: hidden; }
+    .prog-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--primary), var(--secondary)); }
+
+    /* ── Modal ── */
+    .modal-content { border: none; border-radius: 20px; }
+
+    /* ── Toast ── */
+    .toast-container { z-index: 9999; }
+
+    /* ── Responsive ── */
+    @media (max-width: 575px) {
+      .nav-tabs .nav-link { padding: 6px 9px; font-size: .83rem; }
+      .tab-icon { display: none; }
+      .amount-lg { font-size: 1.1rem; }
+    }
+
+    .step-num { width: 24px; height: 24px; min-width: 24px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-size: .78rem; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SETUP SCREEN  (shown when Firebase config is not filled in)
+     ══════════════════════════════════════════════════════════════ -->
+<div id="setupScreen" class="full-screen" style="display:none;">
+  <div class="setup-box">
+    <div class="text-center mb-4">
+      <div style="font-size:3rem;">🏔️</div>
+      <h3 class="fw-bold" style="color:var(--primary);">Himachal Trip Expenses</h3>
+      <p class="text-muted">One-time setup — takes about 5 minutes</p>
+    </div>
+
+    <div class="alert alert-primary" style="border-radius:14px; border:none; background:#e8f4fd;">
+      <p class="fw-semibold mb-2">📋 Setup Steps</p>
+      <div class="d-flex flex-column gap-2" style="font-size:.9rem;">
+        <div class="d-flex gap-2 align-items-start">
+          <div class="step-num mt-1">1</div>
+          <div>Go to <a href="https://console.firebase.google.com" target="_blank" class="fw-semibold">console.firebase.google.com</a> → <strong>Create project</strong> (disable analytics if asked)</div>
+        </div>
+        <div class="d-flex gap-2 align-items-start">
+          <div class="step-num mt-1">2</div>
+          <div>In your project → <strong>Firestore Database</strong> → Create database → choose <em>test mode</em></div>
+        </div>
+        <div class="d-flex gap-2 align-items-start">
+          <div class="step-num mt-1">3</div>
+          <div><strong>Storage</strong> → Get started → test mode (for photo uploads) — <em>optional, skip if it asks you to upgrade plan</em></div>
+        </div>
+        <div class="d-flex gap-2 align-items-start">
+          <div class="step-num mt-1">4</div>
+          <div>Project Settings ⚙️ → <em>Your apps</em> → Add web app → copy the <code>firebaseConfig</code> object</div>
+        </div>
+        <div class="d-flex gap-2 align-items-start">
+          <div class="step-num mt-1">5</div>
+          <div>Open <code>index.html</code> in any text editor → find <code>FIREBASE_CONFIG</code> near the top of the &lt;script&gt; → paste your values</div>
+        </div>
+        <div class="d-flex gap-2 align-items-start">
+          <div class="step-num mt-1">6</div>
+          <div>Also set <code>ADMIN_PASSWORD</code> in the same section</div>
+        </div>
+        <div class="d-flex gap-2 align-items-start">
+          <div class="step-num mt-1">7</div>
+          <div>Deploy to <a href="https://vercel.com/new" target="_blank" class="fw-semibold">Vercel</a> — drag &amp; drop the file (or push to GitHub)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="alert alert-warning mt-3 mb-0" style="border-radius:14px; border:none; font-size:.88rem;">
+      <i class="fas fa-lightbulb me-1"></i>
+      <strong>Tip:</strong> Once deployed, share the Vercel URL with everyone in the group — all data syncs live across all devices!
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     MAIN APP
+     ══════════════════════════════════════════════════════════════ -->
+<div id="mainApp" style="display:none;">
+
+  <!-- Navbar -->
+  <nav class="navbar navbar-dark py-3 mb-0">
+    <div class="container-lg">
+      <span class="navbar-brand">🏔️ <span id="tripNameDisplay">Himachal Trip Expenses</span></span>
+      <span class="text-white-50 small" id="onlineCount"></span>
+    </div>
+  </nav>
+
+  <div class="container-lg py-4 pb-5">
+
+    <!-- Hero stats -->
+    <div class="hero-banner mb-4">
+      <div class="row text-center g-0">
+        <div class="col-4 border-end border-white border-opacity-25">
+          <div style="font-size:.78rem; opacity:.7;">TOTAL SPENT</div>
+          <div class="fw-bold fs-4" id="statTotal">₹0</div>
+        </div>
+        <div class="col-4 border-end border-white border-opacity-25">
+          <div style="font-size:.78rem; opacity:.7;">EXPENSES</div>
+          <div class="fw-bold fs-4" id="statCount">0</div>
+        </div>
+        <div class="col-4">
+          <div style="font-size:.78rem; opacity:.7;">MEMBERS</div>
+          <div class="fw-bold fs-4" id="statMembers">0</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs mb-4" id="mainTabs">
+      <li class="nav-item flex-fill text-center">
+        <a class="nav-link active" href="#" onclick="showTab('expenses');return false;">
+          <i class="fas fa-receipt tab-icon"></i> Expenses
+        </a>
+      </li>
+      <li class="nav-item flex-fill text-center">
+        <a class="nav-link" href="#" onclick="showTab('add');return false;">
+          <i class="fas fa-plus-circle tab-icon"></i> Add
+        </a>
+      </li>
+      <li class="nav-item flex-fill text-center">
+        <a class="nav-link" href="#" onclick="showTab('summary');return false;">
+          <i class="fas fa-chart-pie tab-icon"></i> Summary
+        </a>
+      </li>
+      <li class="nav-item flex-fill text-center">
+        <a class="nav-link" href="#" onclick="showTab('admin');return false;">
+          <i class="fas fa-cog tab-icon"></i> Admin
+        </a>
+      </li>
+    </ul>
+
+    <!-- ─────────────────── EXPENSES TAB ─────────────────── -->
+    <div id="tab-expenses">
+      <div class="filter-bar d-flex flex-wrap gap-2 align-items-center">
+        <select class="form-select form-select-sm" style="width:auto;min-width:130px;" id="filterCat" onchange="renderExpenses()">
+          <option value="">All Categories</option>
+          <option>Food</option><option>Travel</option><option>Hotel</option>
+          <option>Activities</option><option>Shopping</option><option>Misc</option>
+        </select>
+        <select class="form-select form-select-sm" style="width:auto;min-width:130px;" id="filterPerson" onchange="renderExpenses()">
+          <option value="">All People</option>
+        </select>
+        <input type="date" class="form-control form-control-sm" style="width:auto;" id="filterDate" onchange="renderExpenses()" />
+        <button class="btn btn-sm btn-outline-secondary ms-auto" onclick="clearFilters()">
+          <i class="fas fa-times"></i> Clear
+        </button>
+      </div>
+      <div id="expensesList"></div>
+    </div>
+
+    <!-- ─────────────────── ADD EXPENSE TAB ─────────────────── -->
+    <div id="tab-add" style="display:none;">
+      <div class="card">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-4"><i class="fas fa-plus-circle text-success me-2"></i>Add New Expense</h5>
+          <form id="expenseForm" onsubmit="addExpense(event)" novalidate>
+            <div class="row g-3">
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">Description *</label>
+                <input type="text" class="form-control" id="expDesc" placeholder="e.g. Dinner at Café Simla" required />
+              </div>
+
+              <div class="col-6">
+                <label class="form-label fw-semibold">Amount (₹) *</label>
+                <input type="number" class="form-control" id="expAmount" placeholder="0" min="1" step="0.01" required />
+              </div>
+
+              <div class="col-6">
+                <label class="form-label fw-semibold">Date &amp; Time *</label>
+                <input type="datetime-local" class="form-control" id="expDate" required />
+              </div>
+
+              <div class="col-6">
+                <label class="form-label fw-semibold">Category *</label>
+                <select class="form-select" id="expCat" required>
+                  <option value="">Select…</option>
+                  <option>Food</option><option>Travel</option><option>Hotel</option>
+                  <option>Activities</option><option>Shopping</option><option>Misc</option>
+                </select>
+              </div>
+
+              <div class="col-6">
+                <label class="form-label fw-semibold">Payment Mode *</label>
+                <select class="form-select" id="expMode" required>
+                  <option value="">Select…</option>
+                  <option>UPI</option><option>Cash</option>
+                  <option>Credit Card</option><option>Debit Card</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">Location</label>
+                <input type="text" class="form-control" id="expLoc" placeholder="e.g. Manali, Kasol, Shimla…" />
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">Paid By *</label>
+                <select class="form-select" id="expPaidBy" required>
+                  <option value="">Select who paid…</option>
+                </select>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">Split With *</label>
+                <div class="text-muted small mb-2">Tap to select who shares this expense</div>
+                <div id="splitContainer" class="d-flex flex-wrap gap-2"></div>
+                <div class="mt-2 d-flex gap-2">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllSplit()">Select All</button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearSplit()">Clear All</button>
+                </div>
+              </div>
+
+              <div class="col-12" id="photoFieldWrapper">
+                <label class="form-label fw-semibold">Photo / Receipt</label>
+                <input type="file" class="form-control" id="expPhoto" accept="image/*" />
+                <div class="form-text">Optional — attach a bill or receipt photo</div>
+                <div id="photoDisabledNotice" class="alert alert-secondary py-2 mt-2 mb-0" style="font-size:.83rem; border-radius:10px; display:none;">
+                  <i class="fas fa-info-circle me-1"></i>Photo uploads are disabled. Set <code>ENABLE_PHOTOS = true</code> in the config (requires Firebase Storage to be set up).
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label fw-semibold">Notes</label>
+                <textarea class="form-control" id="expNotes" rows="2" placeholder="Any extra details…"></textarea>
+              </div>
+
+              <div class="col-12">
+                <button type="submit" class="btn btn-primary w-100 py-2" id="addBtn">
+                  <i class="fas fa-save me-2"></i>Save Expense
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─────────────────── SUMMARY TAB ─────────────────── -->
+    <div id="tab-summary" style="display:none;">
+
+      <!-- Category breakdown -->
+      <div class="card mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3"><i class="fas fa-chart-bar text-primary me-2"></i>Category Breakdown</h5>
+          <div id="catBreakdown"></div>
+        </div>
+      </div>
+
+      <!-- Per-person spending -->
+      <div class="card mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3"><i class="fas fa-users text-info me-2"></i>Spending Per Person</h5>
+          <div id="perPersonSpend"></div>
+        </div>
+      </div>
+
+      <!-- Balance sheet -->
+      <div class="card mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-1"><i class="fas fa-balance-scale text-warning me-2"></i>Balance Sheet</h5>
+          <p class="text-muted small mb-3">Positive = gets money back · Negative = owes money</p>
+          <div id="balanceSheet"></div>
+        </div>
+      </div>
+
+      <!-- Settlement -->
+      <div class="card">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-1"><i class="fas fa-handshake text-success me-2"></i>Who Pays Whom</h5>
+          <p class="text-muted small mb-3">Minimum transactions to settle all debts</p>
+          <div id="settlementList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─────────────────── ADMIN TAB ─────────────────── -->
+    <div id="tab-admin" style="display:none;">
+
+      <!-- Lock screen -->
+      <div id="adminLocked" class="card">
+        <div class="card-body py-5 text-center">
+          <div style="font-size:2.5rem;">🔐</div>
+          <h5 class="fw-bold mt-2 mb-4">Admin Access Required</h5>
+          <div class="col-sm-6 mx-auto">
+            <input type="password" class="form-control mb-3" id="adminPwInput"
+              placeholder="Enter admin password"
+              onkeydown="if(event.key==='Enter') checkAdminPw()" />
+            <button class="btn btn-primary w-100" onclick="checkAdminPw()">
+              <i class="fas fa-unlock me-2"></i>Unlock
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Admin panel -->
+      <div id="adminPanel" style="display:none;">
+
+        <!-- Members -->
+        <div class="card mb-4">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-bold mb-0"><i class="fas fa-users text-success me-2"></i>Trip Members</h5>
+              <button class="btn btn-sm btn-outline-secondary" onclick="lockAdmin()">
+                <i class="fas fa-lock me-1"></i>Lock
+              </button>
+            </div>
+            <div class="d-flex gap-2 mb-3">
+              <input type="text" class="form-control" id="newMemberName"
+                placeholder="Member name"
+                onkeydown="if(event.key==='Enter') addMember()" />
+              <button class="btn btn-primary px-3" onclick="addMember()" style="white-space:nowrap;">
+                <i class="fas fa-plus"></i> Add
+              </button>
+            </div>
+            <div id="membersList"></div>
+          </div>
+        </div>
+
+        <!-- Settings -->
+        <div class="card mb-4">
+          <div class="card-body p-4">
+            <h5 class="fw-bold mb-3"><i class="fas fa-sliders text-muted me-2"></i>Settings</h5>
+            <label class="form-label fw-semibold">Trip Name</label>
+            <div class="d-flex gap-2">
+              <input type="text" class="form-control" id="tripNameInput" placeholder="e.g. Himachal 2026" />
+              <button class="btn btn-outline-primary" onclick="saveTripName()">Save</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Danger zone -->
+        <div class="card" style="border: 1.5px solid #fecaca;">
+          <div class="card-body p-4">
+            <h5 class="fw-bold text-danger mb-2"><i class="fas fa-triangle-exclamation me-2"></i>Danger Zone</h5>
+            <p class="text-muted small mb-3">These actions are permanent and cannot be undone.</p>
+            <button class="btn btn-outline-danger" onclick="deleteAllExpenses()">
+              <i class="fas fa-trash me-2"></i>Delete All Expenses
+            </button>
+          </div>
+        </div>
+
+      </div><!-- /adminPanel -->
+    </div>
+  </div>
+</div><!-- /mainApp -->
+
+
+<!-- ── PHOTO MODAL ── -->
+<div class="modal fade" id="photoModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header border-0 pb-0">
+        <h6 class="modal-title fw-semibold">Receipt Photo</h6>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body text-center p-2">
+        <img id="photoModalImg" src="" alt="Receipt" class="img-fluid"
+          style="border-radius:12px; max-height:80vh; object-fit:contain;" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── EDIT MODAL ── -->
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold"><i class="fas fa-edit me-2 text-primary"></i>Edit Expense</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="editModalBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ── -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+  <div id="appToast" class="toast align-items-center border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body fw-semibold" id="toastBody"></div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     SCRIPT
+     ══════════════════════════════════════════════════════════════ -->
+<script>
+// ================================================================
+//  ⚙️  CONFIGURATION  —  EDIT THESE BEFORE DEPLOYING!
+// ================================================================
+const FIREBASE_CONFIG = {
+  apiKey:            "YOUR_API_KEY",
+  authDomain:        "YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:         "YOUR_PROJECT_ID",
+  storageBucket:     "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId:             "YOUR_APP_ID"
+};
+
+const ADMIN_PASSWORD = "himachal2026";   // ← Change this!
+const DEFAULT_TRIP   = "Himachal Trip Expenses";
+
+// Set to true ONLY if you successfully enabled Firebase Storage
+// Leave as false if Storage setup failed — everything else still works!
+const ENABLE_PHOTOS  = false;
+// ================================================================
+
+// ── State ──────────────────────────────────────────────────────
+let db, storage;
+let members  = [];
+let expenses = [];
+let currentTab = "expenses";
+
+// ── Boot ───────────────────────────────────────────────────────
+const configured = FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
+
+if (configured) {
+  firebase.initializeApp(FIREBASE_CONFIG);
+  db = firebase.firestore();
+  if (ENABLE_PHOTOS) {
+    try { storage = firebase.storage(); } catch(e) { console.warn("Storage unavailable:", e); }
+  }
+  document.getElementById("mainApp").style.display = "block";
+  bootApp();
+} else {
+  document.getElementById("setupScreen").style.display = "flex";
+}
+
+// ── Init ───────────────────────────────────────────────────────
+async function bootApp() {
+  // Load settings
+  try {
+    const cfg = await db.collection("settings").doc("config").get();
+    if (cfg.exists && cfg.data().tripName) {
+      setTripName(cfg.data().tripName);
+    }
+  } catch (_) {}
+
+  // Real-time members
+  db.collection("members").orderBy("createdAt").onSnapshot(snap => {
+    members = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    refreshMemberDropdowns();
+    refreshSplitPills();
+    renderMembersList();
+    updateStats();
+  }, err => showToast("Firestore error: " + err.message, "danger"));
+
+  // Real-time expenses
+  db.collection("expenses").orderBy("date", "desc").onSnapshot(snap => {
+    expenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderExpenses();
+    renderSummary();
+    updateStats();
+  }, err => showToast("Firestore error: " + err.message, "danger"));
+
+  // Default datetime
+  setDefaultDate();
+
+  // Show photo notice if Storage is not enabled
+  const notice = document.getElementById("photoDisabledNotice");
+  const photoInput = document.getElementById("expPhoto");
+  if (!ENABLE_PHOTOS) {
+    if (notice) notice.style.display = "block";
+    if (photoInput) photoInput.disabled = true;
+  }
+}
+
+function setDefaultDate() {
+  const now   = new Date();
+  const off   = now.getTimezoneOffset() * 60000;
+  const local = new Date(Date.now() - off).toISOString().slice(0, 16);
+  const el    = document.getElementById("expDate");
+  if (el) el.value = local;
+}
+
+// ── Tab switching ───────────────────────────────────────────────
+function showTab(tab) {
+  ["expenses","add","summary","admin"].forEach(t => {
+    document.getElementById("tab-" + t).style.display = (t === tab) ? "block" : "none";
+  });
+  document.querySelectorAll("#mainTabs .nav-link").forEach(a => {
+    a.classList.toggle("active", a.getAttribute("onclick").includes("'" + tab + "'"));
+  });
+  currentTab = tab;
+  if (tab === "add") setDefaultDate();
+  if (tab === "summary") renderSummary();
+}
+
+// ── Stats ───────────────────────────────────────────────────────
+function updateStats() {
+  const total = expenses.reduce((s, e) => s + (e.amount || 0), 0);
+  setText("statTotal",   "₹" + fmtINR(total));
+  setText("statCount",   expenses.length);
+  setText("statMembers", members.length);
+}
+
+// ── Render expenses list ────────────────────────────────────────
+function clearFilters() {
+  ["filterCat","filterPerson","filterDate"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  renderExpenses();
+}
+
+function renderExpenses() {
+  const catF    = val("filterCat");
+  const personF = val("filterPerson");
+  const dateF   = val("filterDate");
+
+  let list = expenses.filter(e => {
+    if (catF    && e.category !== catF) return false;
+    if (personF && e.paidBy !== personF && !(e.splitWith||[]).includes(personF)) return false;
+    if (dateF) {
+      const d = toDate(e.date);
+      const f = new Date(dateF + "T00:00:00");
+      if (d.toDateString() !== f.toDateString()) return false;
+    }
+    return true;
+  });
+
+  const el = document.getElementById("expensesList");
+  if (!list.length) {
+    el.innerHTML = `<div class="empty"><i class="fas fa-receipt"></i>No expenses found.<br><small>Try clearing the filters or add your first expense!</small></div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(e => {
+    const d        = toDate(e.date);
+    const dateStr  = d.toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" });
+    const timeStr  = d.toLocaleTimeString("en-IN", { hour:"2-digit", minute:"2-digit" });
+    const catKey   = (e.category || "misc").toLowerCase().replace(/\s/g,"");
+    const modeKey  = (e.paymentMode||"cash").toLowerCase().replace(/\s/g,"").replace("card","");
+    const perHead  = e.splitWith?.length > 0 ? Math.round(e.amount / e.splitWith.length) : e.amount;
+    const splitStr = (e.splitWith||[]).join(", ");
+
+    return `<div class="card expense-card mb-3">
+  <div class="card-body p-3">
+    <div class="d-flex align-items-start gap-2">
+      <div class="flex-grow-1 min-width-0">
+        <div class="d-flex align-items-center flex-wrap gap-1 mb-1">
+          <span class="fw-bold me-1">${esc(e.description)}</span>
+          <span class="tag cat-${catKey}">${e.category||"Misc"}</span>
+          ${e.paymentMode ? `<span class="tag mode-${modeKey}">${e.paymentMode}</span>` : ""}
+        </div>
+        <div class="text-muted small mb-1">
+          <i class="fas fa-calendar-alt me-1"></i>${dateStr} · ${timeStr}
+          ${e.location ? `<span class="ms-2"><i class="fas fa-map-marker-alt me-1"></i>${esc(e.location)}</span>` : ""}
+        </div>
+        <div class="small">
+          <span class="text-success fw-semibold"><i class="fas fa-wallet me-1"></i>${esc(e.paidBy||"")}</span>
+          ${splitStr ? `<span class="text-muted ms-2">· ${esc(splitStr)}</span>` : ""}
+        </div>
+        ${e.splitWith?.length > 1 ? `<div class="text-muted" style="font-size:.78rem;">₹${fmtINR(perHead)}/person</div>` : ""}
+        ${e.notes ? `<div class="text-muted fst-italic mt-1" style="font-size:.82rem;">"${esc(e.notes)}"</div>` : ""}
+      </div>
+      <div class="text-end flex-shrink-0">
+        <div class="amount-lg">₹${fmtINR(e.amount)}</div>
+        <div class="d-flex gap-1 justify-content-end mt-2">
+          ${e.photoUrl ? `<button class="btn btn-sm btn-outline-secondary" title="View receipt" onclick="viewPhoto('${e.photoUrl}')"><i class="fas fa-image"></i></button>` : ""}
+          <button class="btn btn-sm btn-outline-primary" title="Edit" onclick="openEdit('${e.id}')"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-sm btn-outline-danger" title="Delete" onclick="delExpense('${e.id}')"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`;
+  }).join("");
+}
+
+// ── Add expense ─────────────────────────────────────────────────
+async function addExpense(ev) {
+  ev.preventDefault();
+  const btn = document.getElementById("addBtn");
+
+  const splitWith = Array.from(document.querySelectorAll(".split-cb:checked")).map(c => c.value);
+  if (!splitWith.length) { showToast("Select at least one person for the split.", "warning"); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving…';
+
+  try {
+    let photoUrl = null;
+    const file = document.getElementById("expPhoto")?.files[0];
+    if (file && storage) {
+      const ref = storage.ref(`receipts/${Date.now()}_${file.name}`);
+      await ref.put(file);
+      photoUrl = await ref.getDownloadURL();
+    } else if (file && !storage) {
+      showToast("Photo upload skipped — Storage not enabled.", "warning");
+    }
+
+    await db.collection("expenses").add({
+      description:  val("expDesc"),
+      amount:       parseFloat(val("expAmount")),
+      date:         firebase.firestore.Timestamp.fromDate(new Date(val("expDate"))),
+      category:     val("expCat"),
+      paymentMode:  val("expMode"),
+      location:     val("expLoc"),
+      paidBy:       val("expPaidBy"),
+      splitWith,
+      notes:        val("expNotes"),
+      photoUrl,
+      createdAt:    firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    document.getElementById("expenseForm").reset();
+    clearSplit();
+    setDefaultDate();
+    showToast("Expense saved! 🎉", "success");
+    showTab("expenses");
+  } catch (err) {
+    showToast("Error: " + err.message, "danger");
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-save me-2"></i>Save Expense';
+  }
+}
+
+// ── Delete expense ──────────────────────────────────────────────
+async function delExpense(id) {
+  if (!confirm("Delete this expense?")) return;
+  try {
+    await db.collection("expenses").doc(id).delete();
+    showToast("Expense deleted.", "warning");
+  } catch (err) { showToast(err.message, "danger"); }
+}
+
+// ── Edit expense ────────────────────────────────────────────────
+function openEdit(id) {
+  const e = expenses.find(x => x.id === id);
+  if (!e) return;
+
+  const d      = toDate(e.date);
+  const off    = d.getTimezoneOffset() * 60000;
+  const dtLocal = new Date(d.getTime() - off).toISOString().slice(0,16);
+
+  const paidByOpts = members.map(m =>
+    `<option ${e.paidBy===m.name?"selected":""}>${m.name}</option>`).join("");
+
+  const splitPills = members.map(m => {
+    const on = (e.splitWith||[]).includes(m.name);
+    return `<label class="split-pill ${on?"on":""}" onclick="toggleEditPill(this)">
+      <input type="checkbox" class="edit-cb" value="${m.name}" ${on?"checked":""} style="display:none;">
+      <div class="avatar avatar-sm">${m.name[0].toUpperCase()}</div>${esc(m.name)}
+    </label>`;
+  }).join("");
+
+  document.getElementById("editModalBody").innerHTML = `
+<div class="p-2">
+<div class="row g-3">
+  <div class="col-12">
+    <label class="form-label fw-semibold">Description *</label>
+    <input class="form-control" id="e-desc" value="${esc(e.description||"")}" />
+  </div>
+  <div class="col-6">
+    <label class="form-label fw-semibold">Amount (₹) *</label>
+    <input type="number" class="form-control" id="e-amount" value="${e.amount||0}" />
+  </div>
+  <div class="col-6">
+    <label class="form-label fw-semibold">Date &amp; Time</label>
+    <input type="datetime-local" class="form-control" id="e-date" value="${dtLocal}" />
+  </div>
+  <div class="col-6">
+    <label class="form-label fw-semibold">Category</label>
+    <select class="form-select" id="e-cat">
+      ${["Food","Travel","Hotel","Activities","Shopping","Misc"].map(c=>`<option ${e.category===c?"selected":""}>${c}</option>`).join("")}
+    </select>
+  </div>
+  <div class="col-6">
+    <label class="form-label fw-semibold">Payment Mode</label>
+    <select class="form-select" id="e-mode">
+      ${["UPI","Cash","Credit Card","Debit Card"].map(m=>`<option ${e.paymentMode===m?"selected":""}>${m}</option>`).join("")}
+    </select>
+  </div>
+  <div class="col-12">
+    <label class="form-label fw-semibold">Location</label>
+    <input class="form-control" id="e-loc" value="${esc(e.location||"")}" />
+  </div>
+  <div class="col-12">
+    <label class="form-label fw-semibold">Paid By</label>
+    <select class="form-select" id="e-paid">${paidByOpts}</select>
+  </div>
+  <div class="col-12">
+    <label class="form-label fw-semibold">Split With</label>
+    <div class="d-flex flex-wrap gap-2 mt-1">${splitPills}</div>
+  </div>
+  <div class="col-12">
+    <label class="form-label fw-semibold">Notes</label>
+    <textarea class="form-control" id="e-notes" rows="2">${esc(e.notes||"")}</textarea>
+  </div>
+  <div class="col-12 pb-2">
+    <button class="btn btn-primary w-100" onclick="saveEdit('${id}')">
+      <i class="fas fa-save me-2"></i>Update Expense
+    </button>
+  </div>
+</div>
+</div>`;
+
+  new bootstrap.Modal(document.getElementById("editModal")).show();
+}
+
+function toggleEditPill(el) {
+  el.classList.toggle("on");
+  const cb = el.querySelector("input");
+  cb.checked = !cb.checked;
+}
+
+async function saveEdit(id) {
+  const splitWith = Array.from(document.querySelectorAll(".edit-cb:checked")).map(c => c.value);
+  try {
+    await db.collection("expenses").doc(id).update({
+      description: val("e-desc"),
+      amount:      parseFloat(val("e-amount")),
+      date:        firebase.firestore.Timestamp.fromDate(new Date(val("e-date"))),
+      category:    val("e-cat"),
+      paymentMode: val("e-mode"),
+      location:    val("e-loc"),
+      paidBy:      val("e-paid"),
+      splitWith,
+      notes:       val("e-notes")
+    });
+    bootstrap.Modal.getInstance(document.getElementById("editModal")).hide();
+    showToast("Expense updated! ✅", "success");
+  } catch (err) { showToast(err.message, "danger"); }
+}
+
+// ── Photo modal ─────────────────────────────────────────────────
+function viewPhoto(url) {
+  document.getElementById("photoModalImg").src = url;
+  new bootstrap.Modal(document.getElementById("photoModal")).show();
+}
+
+// ── Summary ─────────────────────────────────────────────────────
+function renderSummary() {
+  renderCatBreakdown();
+  renderPerPersonSpend();
+  renderBalanceSheet();
+  renderSettlement();
+}
+
+function renderCatBreakdown() {
+  const totals = {};
+  let grand = 0;
+  expenses.forEach(e => {
+    const c = e.category || "Misc";
+    totals[c] = (totals[c] || 0) + (e.amount || 0);
+    grand += (e.amount || 0);
+  });
+  const sorted = Object.entries(totals).sort((a,b) => b[1]-a[1]);
+  const el = document.getElementById("catBreakdown");
+  if (!sorted.length) { el.innerHTML = `<div class="text-muted text-center py-3">No data yet</div>`; return; }
+  el.innerHTML = sorted.map(([cat, total]) => {
+    const pct    = grand > 0 ? Math.round(total/grand*100) : 0;
+    const catKey = cat.toLowerCase().replace(/\s/g,"");
+    return `<div class="mb-3">
+      <div class="d-flex justify-content-between mb-1">
+        <span><span class="tag cat-${catKey}">${cat}</span></span>
+        <span class="fw-semibold">₹${fmtINR(total)} <span class="text-muted">(${pct}%)</span></span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join("");
+}
+
+function renderPerPersonSpend() {
+  const spends = {};
+  members.forEach(m => spends[m.name] = 0);
+  expenses.forEach(e => {
+    if (spends[e.paidBy] !== undefined) spends[e.paidBy] += (e.amount||0);
+  });
+  const sorted = Object.entries(spends).sort((a,b)=>b[1]-a[1]);
+  const max    = sorted[0]?.[1] || 1;
+  const el     = document.getElementById("perPersonSpend");
+  if (!sorted.length) { el.innerHTML = `<div class="text-muted text-center py-3">No members added</div>`; return; }
+  el.innerHTML = sorted.map(([name, total]) => {
+    const pct = Math.round(total/max*100);
+    return `<div class="mb-3">
+      <div class="d-flex align-items-center gap-2 mb-1">
+        <div class="avatar avatar-sm">${name[0].toUpperCase()}</div>
+        <span class="fw-semibold">${esc(name)}</span>
+        <span class="ms-auto fw-semibold">₹${fmtINR(total)}</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+    </div>`;
+  }).join("");
+}
+
+function calcBalances() {
+  const bal = {};
+  members.forEach(m => bal[m.name] = 0);
+  expenses.forEach(e => {
+    const split = e.splitWith || [];
+    const share = split.length > 0 ? (e.amount||0)/split.length : 0;
+    if (bal[e.paidBy] !== undefined) bal[e.paidBy] += (e.amount||0);
+    split.forEach(p => { if (bal[p] !== undefined) bal[p] -= share; });
+  });
+  return bal;
+}
+
+function renderBalanceSheet() {
+  const bal  = calcBalances();
+  const el   = document.getElementById("balanceSheet");
+  if (!members.length) { el.innerHTML = `<div class="text-muted text-center py-3">No members added</div>`; return; }
+  el.innerHTML = Object.entries(bal).sort((a,b)=>b[1]-a[1]).map(([name, b]) => {
+    const pos = b >= 0;
+    return `<div class="d-flex align-items-center justify-content-between p-3 mb-2 rounded-3"
+        style="background:${pos?"#f0fdf4":"#fff5f5"};">
+      <div class="d-flex align-items-center gap-2">
+        <div class="avatar">${name[0].toUpperCase()}</div>
+        <span class="fw-semibold">${esc(name)}</span>
+      </div>
+      <div class="fw-bold ${pos?"balance-pos":"balance-neg"} text-end">
+        ${pos?"+":""}₹${fmtINR(Math.round(b))}
+        <div class="fw-normal text-muted" style="font-size:.75rem;">${pos?"gets back":"owes"}</div>
+      </div>
+    </div>`;
+  }).join("");
+}
+
+function renderSettlement() {
+  const bal  = calcBalances();
+  const cred = Object.entries(bal).filter(([,b])=>b>0.5).map(([n,b])=>({name:n,amt:Math.round(b)}));
+  const debt = Object.entries(bal).filter(([,b])=>b<-0.5).map(([n,b])=>({name:n,amt:Math.round(-b)}));
+  const txns = [];
+  let ci=0, di=0;
+  const C = cred.map(c=>({...c})), D = debt.map(d=>({...d}));
+  while (ci<C.length && di<D.length) {
+    const t = Math.min(C[ci].amt, D[di].amt);
+    if (t>0) txns.push({from:D[di].name, to:C[ci].name, amt:t});
+    C[ci].amt -= t; D[di].amt -= t;
+    if (C[ci].amt < 1) ci++;
+    if (D[di].amt < 1) di++;
+  }
+  const el = document.getElementById("settlementList");
+  if (!txns.length) {
+    el.innerHTML = `<div class="text-center py-3 text-muted"><i class="fas fa-check-circle text-success me-2"></i>All settled up! 🎉</div>`;
+    return;
+  }
+  el.innerHTML = txns.map(t =>
+    `<div class="settle-row">
+      <div class="avatar">${t.from[0].toUpperCase()}</div>
+      <span class="fw-semibold">${esc(t.from)}</span>
+      <i class="fas fa-arrow-right text-muted mx-1"></i>
+      <span class="fw-semibold">${esc(t.to)}</span>
+      <span class="ms-auto fw-bold text-danger">₹${fmtINR(t.amt)}</span>
+    </div>`).join("");
+}
+
+// ── Members ─────────────────────────────────────────────────────
+function refreshMemberDropdowns() {
+  const pb  = document.getElementById("expPaidBy");
+  const fp  = document.getElementById("filterPerson");
+  const cur = pb?.value;
+
+  if (pb) pb.innerHTML = '<option value="">Select who paid…</option>' +
+    members.map(m => `<option ${m.name===cur?"selected":""}>${m.name}</option>`).join("");
+
+  if (fp) fp.innerHTML = '<option value="">All People</option>' +
+    members.map(m => `<option>${m.name}</option>`).join("");
+}
+
+function refreshSplitPills() {
+  const c = document.getElementById("splitContainer");
+  if (!c) return;
+  c.innerHTML = members.map(m =>
+    `<label class="split-pill" onclick="toggleSplitPill(this)">
+      <input type="checkbox" class="split-cb" value="${m.name}" style="display:none;">
+      <div class="avatar avatar-sm">${m.name[0].toUpperCase()}</div>${esc(m.name)}
+    </label>`).join("");
+}
+
+function toggleSplitPill(el) {
+  el.classList.toggle("on");
+  const cb = el.querySelector("input");
+  cb.checked = !cb.checked;
+}
+function selectAllSplit() {
+  document.querySelectorAll(".split-pill").forEach(el => {
+    el.classList.add("on");
+    el.querySelector("input").checked = true;
+  });
+}
+function clearSplit() {
+  document.querySelectorAll(".split-pill").forEach(el => {
+    el.classList.remove("on");
+    el.querySelector("input").checked = false;
+  });
+}
+
+function renderMembersList() {
+  const el = document.getElementById("membersList");
+  if (!el) return;
+  if (!members.length) {
+    el.innerHTML = `<div class="text-muted text-center py-3">No members added yet</div>`;
+    return;
+  }
+  el.innerHTML = members.map(m =>
+    `<div class="member-row">
+      <div class="avatar">${m.name[0].toUpperCase()}</div>
+      <span class="fw-semibold flex-grow-1">${esc(m.name)}</span>
+      <button class="btn btn-sm btn-outline-danger" onclick="removeMember('${m.id}','${esc(m.name)}')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>`).join("");
+}
+
+async function addMember() {
+  const name = document.getElementById("newMemberName").value.trim();
+  if (!name) return;
+  if (members.some(m => m.name.toLowerCase() === name.toLowerCase())) {
+    showToast("Member already exists!", "warning"); return;
+  }
+  try {
+    await db.collection("members").add({ name, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    document.getElementById("newMemberName").value = "";
+    showToast(`${name} added! 👋`, "success");
+  } catch (err) { showToast(err.message, "danger"); }
+}
+
+async function removeMember(id, name) {
+  if (!confirm(`Remove ${name} from the trip?`)) return;
+  await db.collection("members").doc(id).delete();
+  showToast(`${name} removed.`, "warning");
+}
+
+// ── Admin ───────────────────────────────────────────────────────
+function checkAdminPw() {
+  if (document.getElementById("adminPwInput").value === ADMIN_PASSWORD) {
+    document.getElementById("adminLocked").style.display = "none";
+    document.getElementById("adminPanel").style.display  = "block";
+  } else {
+    showToast("Wrong password. Try again.", "danger");
+  }
+}
+function lockAdmin() {
+  document.getElementById("adminLocked").style.display = "block";
+  document.getElementById("adminPanel").style.display  = "none";
+  document.getElementById("adminPwInput").value        = "";
+}
+
+async function saveTripName() {
+  const name = document.getElementById("tripNameInput").value.trim();
+  if (!name) return;
+  await db.collection("settings").doc("config").set({ tripName: name }, { merge: true });
+  setTripName(name);
+  showToast("Trip name updated!", "success");
+}
+function setTripName(name) {
+  const el = document.getElementById("tripNameDisplay");
+  if (el) el.textContent = name;
+  const inp = document.getElementById("tripNameInput");
+  if (inp) inp.value = name;
+  document.title = "🏔️ " + name;
+}
+
+async function deleteAllExpenses() {
+  if (!confirm("Delete ALL expenses permanently? This cannot be undone.")) return;
+  if (!confirm("Are you absolutely sure? Click OK to confirm deletion.")) return;
+  const snap  = await db.collection("expenses").get();
+  const batch = db.batch();
+  snap.docs.forEach(d => batch.delete(d.ref));
+  await batch.commit();
+  showToast("All expenses deleted.", "warning");
+}
+
+// ── Toast ───────────────────────────────────────────────────────
+function showToast(msg, type="success") {
+  const el = document.getElementById("appToast");
+  el.className = `toast align-items-center border-0 text-bg-${type}`;
+  document.getElementById("toastBody").textContent = msg;
+  new bootstrap.Toast(el, { delay: 3200 }).show();
+}
+
+// ── Helpers ─────────────────────────────────────────────────────
+function val(id)       { return document.getElementById(id)?.value || ""; }
+function setText(id,v) { const el=document.getElementById(id); if(el) el.textContent=v; }
+function fmtINR(n)     { return Number(n).toLocaleString("en-IN"); }
+function esc(s)        { return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function toDate(d)     { return d?.toDate ? d.toDate() : new Date(d); }
+</script>
+</body>
+</html>
