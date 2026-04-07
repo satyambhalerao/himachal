@@ -5,22 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🏔️ Himachal Trip Expenses</title>
 
-  <!-- Firebase SDKs (compat v9) -->
+  <!-- Firebase SDKs (compat v9) — do NOT add module imports here -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    // TODO: Add SDKs for Firebase products that you want to use
-    // https://firebase.google.com/docs/web/setup#available-libraries
-  
-    // Your web app's Firebase configuration
-    
-  
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-  </script>
+  <!-- Firebase config is set inside the main <script> below -->
 
   <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
@@ -506,22 +495,21 @@
      ══════════════════════════════════════════════════════════════ -->
 <script>
 // ================================================================
-//  ⚙️  CONFIGURATION  —  EDIT THESE BEFORE DEPLOYING!
+//  ⚙️  CONFIGURATION
 // ================================================================
 const firebaseConfig = {
-      apiKey: "AIzaSyAp6xXe7Knx3_CP59tXMkH29fUdlnLG5xY",
-      authDomain: "himachal-8f53f.firebaseapp.com",
-      projectId: "himachal-8f53f",
-      storageBucket: "himachal-8f53f.firebasestorage.app",
-      messagingSenderId: "477257354813",
-      appId: "1:477257354813:web:1204a406275dd0057c6454"
-    };
+  apiKey:            "AIzaSyAp6xXe7Knx3_CP59tXMkH29fUdlnLG5xY",
+  authDomain:        "himachal-8f53f.firebaseapp.com",
+  projectId:         "himachal-8f53f",
+  storageBucket:     "himachal-8f53f.firebasestorage.app",
+  messagingSenderId: "477257354813",
+  appId:             "1:477257354813:web:1204a406275dd0057c6454"
+};
 
 const ADMIN_PASSWORD = "himachal2026";   // ← Change this!
 const DEFAULT_TRIP   = "Himachal Trip Expenses";
 
 // Set to true ONLY if you successfully enabled Firebase Storage
-// Leave as false if Storage setup failed — everything else still works!
 const ENABLE_PHOTOS  = false;
 // ================================================================
 
@@ -532,10 +520,10 @@ let expenses = [];
 let currentTab = "expenses";
 
 // ── Boot ───────────────────────────────────────────────────────
-const configured = FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY";
+const configured = firebaseConfig.projectId !== "YOUR_PROJECT_ID";
 
 if (configured) {
-  firebase.initializeApp(FIREBASE_CONFIG);
+  firebase.initializeApp(firebaseConfig);
   db = firebase.firestore();
   if (ENABLE_PHOTOS) {
     try { storage = firebase.storage(); } catch(e) { console.warn("Storage unavailable:", e); }
