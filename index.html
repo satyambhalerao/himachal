@@ -5,17 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🏔️ Himachal Trip Expenses</title>
 
-  <!-- Firebase SDKs (compat v9) — do NOT add module imports here -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-  <!-- Firebase config is set inside the main <script> below -->
 
-  <!-- Bootstrap 5 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Font Awesome -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
 
   <style>
@@ -31,22 +26,18 @@
     }
     body { background: var(--bg); font-family: 'Segoe UI', system-ui, sans-serif; color: var(--text); }
 
-    /* ── Navbar ── */
     .navbar { background: linear-gradient(135deg, #1a6b3a, #0f4d2a) !important; box-shadow: 0 2px 20px rgba(0,0,0,.15); }
     .navbar-brand { font-size: 1.15rem; font-weight: 700; color: #fff !important; }
 
-    /* ── Tabs ── */
     .nav-tabs { border: none; background: #fff; border-radius: 12px; padding: 4px; box-shadow: 0 1px 8px rgba(0,0,0,.08); }
     .nav-tabs .nav-link { border: none; border-radius: 8px; color: var(--muted); font-weight: 500; padding: 8px 14px; transition: all .2s; }
     .nav-tabs .nav-link.active { background: var(--primary); color: #fff; }
     .nav-tabs .nav-link:hover:not(.active) { background: var(--bg); color: var(--text); }
 
-    /* ── Cards ── */
     .card { border: none; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
     .expense-card { border-left: 4px solid var(--secondary); transition: transform .18s, box-shadow .18s; }
     .expense-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.1); }
 
-    /* ── Badges ── */
     .tag { font-size: .72rem; padding: 3px 10px; border-radius: 20px; font-weight: 600; display: inline-block; }
     .cat-food       { background:#fef3c7; color:#92400e; }
     .cat-travel     { background:#dbeafe; color:#1e40af; }
@@ -59,61 +50,79 @@
     .mode-credit { background:#fff7ed; color:#9a3412; }
     .mode-debit  { background:#fdf4ff; color:#6b21a8; }
 
-    /* ── Hero ── */
     .hero-banner { background: linear-gradient(135deg, #1a6b3a, #0a3d1f); color: #fff; border-radius: 20px; padding: 22px 24px; }
 
-    /* ── Amount ── */
     .amount-lg { font-size: 1.35rem; font-weight: 700; color: var(--primary); }
 
-    /* ── Avatars ── */
     .avatar { width: 34px; height: 34px; min-width: 34px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .82rem; }
     .avatar-sm { width: 26px; height: 26px; min-width: 26px; font-size: .72rem; }
 
-    /* ── Split pills ── */
-    .split-pill { display: flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 10px; border: 2px solid var(--border); cursor: pointer; user-select: none; transition: all .18s; font-size: .88rem; }
+    /* ── Split pills — no checkbox, pure JS Set ── */
+    .split-pill {
+      display: flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 10px;
+      border: 2px solid var(--border);
+      cursor: pointer; user-select: none;
+      transition: all .18s; font-size: .88rem;
+      background: #fff;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .split-pill:hover { border-color: var(--secondary); background: #f0fdf4; }
     .split-pill.on { border-color: var(--secondary); background: #f0fdf4; }
+    .split-pill.on .avatar-sm { background: var(--secondary); }
 
-    /* ── Settlement ── */
     .settle-row { background: #f8fafc; border-radius: 12px; padding: 12px 16px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
     .balance-pos { color: #16a34a; }
     .balance-neg { color: #dc2626; }
 
-    /* ── Forms ── */
     .form-control, .form-select { border-radius: 10px; border: 1px solid var(--border); padding: 9px 13px; }
     .form-control:focus, .form-select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(45,158,95,.12); }
     .btn-primary { background: var(--primary); border: none; border-radius: 10px; font-weight: 600; }
     .btn-primary:hover, .btn-primary:active { background: var(--secondary) !important; border: none; }
 
-    /* ── Setup / Lock screens ── */
     .full-screen { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a6b3a 0%, #0a3d1f 100%); }
     .setup-box { max-width: 620px; width: 100%; border-radius: 24px; padding: 40px; background: #fff; }
 
-    /* ── Empty state ── */
     .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
     .empty i { font-size: 2.8rem; opacity: .35; display: block; margin-bottom: 12px; }
 
-    /* ── Filter bar ── */
     .filter-bar { background: #fff; border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
 
-    /* ── Photo thumbnail ── */
-    .photo-thumb { width: 52px; height: 52px; object-fit: cover; border-radius: 8px; cursor: pointer; border: 2px solid var(--border); }
-
-    /* ── Admin ── */
     .member-row { background: #f8fafc; border-radius: 10px; padding: 10px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
 
-    /* ── Progress bar ── */
     .prog-bar { height: 7px; border-radius: 10px; background: #e2e8f0; overflow: hidden; }
     .prog-fill { height: 100%; border-radius: 10px; background: linear-gradient(90deg, var(--primary), var(--secondary)); }
 
-    /* ── Modal ── */
     .modal-content { border: none; border-radius: 20px; }
-
-    /* ── Toast ── */
     .toast-container { z-index: 9999; }
 
-    /* ── Responsive ── */
+    /* ── Settle tab styles ── */
+    .settle-card {
+      border-left: 4px solid #f59e0b;
+      transition: transform .18s, box-shadow .18s;
+    }
+    .settle-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.1); }
+    .settle-card.paid { border-left-color: var(--secondary); opacity: .75; }
+
+    .settle-needed-row {
+      background: #fff7ed;
+      border: 1.5px solid #fed7aa;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .settle-needed-row.done {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      opacity: .7;
+    }
+
     @media (max-width: 575px) {
-      .nav-tabs .nav-link { padding: 6px 9px; font-size: .83rem; }
+      .nav-tabs .nav-link { padding: 6px 7px; font-size: .78rem; }
       .tab-icon { display: none; }
       .amount-lg { font-size: 1.1rem; }
     }
@@ -123,9 +132,7 @@
 </head>
 <body>
 
-<!-- ══════════════════════════════════════════════════════════════
-     SETUP SCREEN  (shown when Firebase config is not filled in)
-     ══════════════════════════════════════════════════════════════ -->
+<!-- SETUP SCREEN -->
 <div id="setupScreen" class="full-screen" style="display:none;">
   <div class="setup-box">
     <div class="text-center mb-4">
@@ -133,55 +140,23 @@
       <h3 class="fw-bold" style="color:var(--primary);">Himachal Trip Expenses</h3>
       <p class="text-muted">One-time setup — takes about 5 minutes</p>
     </div>
-
     <div class="alert alert-primary" style="border-radius:14px; border:none; background:#e8f4fd;">
       <p class="fw-semibold mb-2">📋 Setup Steps</p>
       <div class="d-flex flex-column gap-2" style="font-size:.9rem;">
-        <div class="d-flex gap-2 align-items-start">
-          <div class="step-num mt-1">1</div>
-          <div>Go to <a href="https://console.firebase.google.com" target="_blank" class="fw-semibold">console.firebase.google.com</a> → <strong>Create project</strong> (disable analytics if asked)</div>
-        </div>
-        <div class="d-flex gap-2 align-items-start">
-          <div class="step-num mt-1">2</div>
-          <div>In your project → <strong>Firestore Database</strong> → Create database → choose <em>test mode</em></div>
-        </div>
-        <div class="d-flex gap-2 align-items-start">
-          <div class="step-num mt-1">3</div>
-          <div><strong>Storage</strong> → Get started → test mode (for photo uploads) — <em>optional, skip if it asks you to upgrade plan</em></div>
-        </div>
-        <div class="d-flex gap-2 align-items-start">
-          <div class="step-num mt-1">4</div>
-          <div>Project Settings ⚙️ → <em>Your apps</em> → Add web app → copy the <code>firebaseConfig</code> object</div>
-        </div>
-        <div class="d-flex gap-2 align-items-start">
-          <div class="step-num mt-1">5</div>
-          <div>Open <code>index.html</code> in any text editor → find <code>FIREBASE_CONFIG</code> near the top of the &lt;script&gt; → paste your values</div>
-        </div>
-        <div class="d-flex gap-2 align-items-start">
-          <div class="step-num mt-1">6</div>
-          <div>Also set <code>ADMIN_PASSWORD</code> in the same section</div>
-        </div>
-        <div class="d-flex gap-2 align-items-start">
-          <div class="step-num mt-1">7</div>
-          <div>Deploy to <a href="https://vercel.com/new" target="_blank" class="fw-semibold">Vercel</a> — drag &amp; drop the file (or push to GitHub)</div>
-        </div>
+        <div class="d-flex gap-2 align-items-start"><div class="step-num mt-1">1</div><div>Go to <a href="https://console.firebase.google.com" target="_blank" class="fw-semibold">console.firebase.google.com</a> → <strong>Create project</strong></div></div>
+        <div class="d-flex gap-2 align-items-start"><div class="step-num mt-1">2</div><div><strong>Firestore Database</strong> → Create database → test mode</div></div>
+        <div class="d-flex gap-2 align-items-start"><div class="step-num mt-1">3</div><div>Project Settings ⚙️ → Add web app → copy <code>firebaseConfig</code></div></div>
+        <div class="d-flex gap-2 align-items-start"><div class="step-num mt-1">4</div><div>Paste config values into <code>index.html</code> near the top of the &lt;script&gt;</div></div>
+        <div class="d-flex gap-2 align-items-start"><div class="step-num mt-1">5</div><div>Deploy to <a href="https://vercel.com/new" target="_blank" class="fw-semibold">Vercel</a> and share the URL</div></div>
       </div>
-    </div>
-
-    <div class="alert alert-warning mt-3 mb-0" style="border-radius:14px; border:none; font-size:.88rem;">
-      <i class="fas fa-lightbulb me-1"></i>
-      <strong>Tip:</strong> Once deployed, share the Vercel URL with everyone in the group — all data syncs live across all devices!
     </div>
   </div>
 </div>
 
 
-<!-- ══════════════════════════════════════════════════════════════
-     MAIN APP
-     ══════════════════════════════════════════════════════════════ -->
+<!-- MAIN APP -->
 <div id="mainApp" style="display:none;">
 
-  <!-- Navbar -->
   <nav class="navbar navbar-dark py-3 mb-0">
     <div class="container-lg">
       <span class="navbar-brand">🏔️ <span id="tripNameDisplay">Himachal Trip Expenses</span></span>
@@ -194,17 +169,21 @@
     <!-- Hero stats -->
     <div class="hero-banner mb-4">
       <div class="row text-center g-0">
-        <div class="col-4 border-end border-white border-opacity-25">
-          <div style="font-size:.78rem; opacity:.7;">TOTAL SPENT</div>
-          <div class="fw-bold fs-4" id="statTotal">₹0</div>
+        <div class="col-3 border-end border-white border-opacity-25">
+          <div style="font-size:.72rem; opacity:.7;">TOTAL SPENT</div>
+          <div class="fw-bold fs-5" id="statTotal">₹0</div>
         </div>
-        <div class="col-4 border-end border-white border-opacity-25">
-          <div style="font-size:.78rem; opacity:.7;">EXPENSES</div>
-          <div class="fw-bold fs-4" id="statCount">0</div>
+        <div class="col-3 border-end border-white border-opacity-25">
+          <div style="font-size:.72rem; opacity:.7;">EXPENSES</div>
+          <div class="fw-bold fs-5" id="statCount">0</div>
         </div>
-        <div class="col-4">
-          <div style="font-size:.78rem; opacity:.7;">MEMBERS</div>
-          <div class="fw-bold fs-4" id="statMembers">0</div>
+        <div class="col-3 border-end border-white border-opacity-25">
+          <div style="font-size:.72rem; opacity:.7;">MEMBERS</div>
+          <div class="fw-bold fs-5" id="statMembers">0</div>
+        </div>
+        <div class="col-3">
+          <div style="font-size:.72rem; opacity:.7;">SETTLED</div>
+          <div class="fw-bold fs-5" id="statSettled">₹0</div>
         </div>
       </div>
     </div>
@@ -227,13 +206,18 @@
         </a>
       </li>
       <li class="nav-item flex-fill text-center">
+        <a class="nav-link" href="#" onclick="showTab('settle');return false;">
+          <i class="fas fa-handshake tab-icon"></i> Settle
+        </a>
+      </li>
+      <li class="nav-item flex-fill text-center">
         <a class="nav-link" href="#" onclick="showTab('admin');return false;">
           <i class="fas fa-cog tab-icon"></i> Admin
         </a>
       </li>
     </ul>
 
-    <!-- ─────────────────── EXPENSES TAB ─────────────────── -->
+    <!-- ─── EXPENSES TAB ─── -->
     <div id="tab-expenses">
       <div class="filter-bar d-flex flex-wrap gap-2 align-items-center">
         <select class="form-select form-select-sm" style="width:auto;min-width:130px;" id="filterCat" onchange="renderExpenses()">
@@ -252,29 +236,25 @@
       <div id="expensesList"></div>
     </div>
 
-    <!-- ─────────────────── ADD EXPENSE TAB ─────────────────── -->
+    <!-- ─── ADD EXPENSE TAB ─── -->
     <div id="tab-add" style="display:none;">
       <div class="card">
         <div class="card-body p-4">
           <h5 class="fw-bold mb-4"><i class="fas fa-plus-circle text-success me-2"></i>Add New Expense</h5>
           <form id="expenseForm" onsubmit="addExpense(event)" novalidate>
             <div class="row g-3">
-
               <div class="col-12">
                 <label class="form-label fw-semibold">Description *</label>
                 <input type="text" class="form-control" id="expDesc" placeholder="e.g. Dinner at Café Simla" required />
               </div>
-
               <div class="col-6">
                 <label class="form-label fw-semibold">Amount (₹) *</label>
                 <input type="number" class="form-control" id="expAmount" placeholder="0" min="1" step="0.01" required />
               </div>
-
               <div class="col-6">
                 <label class="form-label fw-semibold">Date &amp; Time *</label>
                 <input type="datetime-local" class="form-control" id="expDate" required />
               </div>
-
               <div class="col-6">
                 <label class="form-label fw-semibold">Category *</label>
                 <select class="form-select" id="expCat" required>
@@ -283,7 +263,6 @@
                   <option>Activities</option><option>Shopping</option><option>Misc</option>
                 </select>
               </div>
-
               <div class="col-6">
                 <label class="form-label fw-semibold">Payment Mode *</label>
                 <select class="form-select" id="expMode" required>
@@ -292,43 +271,36 @@
                   <option>Credit Card</option><option>Debit Card</option>
                 </select>
               </div>
-
               <div class="col-12">
                 <label class="form-label fw-semibold">Location</label>
                 <input type="text" class="form-control" id="expLoc" placeholder="e.g. Manali, Kasol, Shimla…" />
               </div>
-
               <div class="col-12">
                 <label class="form-label fw-semibold">Paid By *</label>
                 <select class="form-select" id="expPaidBy" required>
                   <option value="">Select who paid…</option>
                 </select>
               </div>
-
               <div class="col-12">
                 <label class="form-label fw-semibold">Split With *</label>
-                <div class="text-muted small mb-2">Tap to select who shares this expense</div>
+                <div class="text-muted small mb-2">Tap a name to toggle who shares this expense</div>
                 <div id="splitContainer" class="d-flex flex-wrap gap-2"></div>
                 <div class="mt-2 d-flex gap-2">
                   <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllSplit()">Select All</button>
                   <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearSplit()">Clear All</button>
                 </div>
               </div>
-
               <div class="col-12" id="photoFieldWrapper">
                 <label class="form-label fw-semibold">Photo / Receipt</label>
                 <input type="file" class="form-control" id="expPhoto" accept="image/*" />
-                <div class="form-text">Optional — attach a bill or receipt photo</div>
                 <div id="photoDisabledNotice" class="alert alert-secondary py-2 mt-2 mb-0" style="font-size:.83rem; border-radius:10px; display:none;">
-                  <i class="fas fa-info-circle me-1"></i>Photo uploads are disabled. Set <code>ENABLE_PHOTOS = true</code> in the config (requires Firebase Storage to be set up).
+                  <i class="fas fa-info-circle me-1"></i>Photo uploads are disabled. Set <code>ENABLE_PHOTOS = true</code> in the config.
                 </div>
               </div>
-
               <div class="col-12">
                 <label class="form-label fw-semibold">Notes</label>
                 <textarea class="form-control" id="expNotes" rows="2" placeholder="Any extra details…"></textarea>
               </div>
-
               <div class="col-12">
                 <button type="submit" class="btn btn-primary w-100 py-2" id="addBtn">
                   <i class="fas fa-save me-2"></i>Save Expense
@@ -340,26 +312,20 @@
       </div>
     </div>
 
-    <!-- ─────────────────── SUMMARY TAB ─────────────────── -->
+    <!-- ─── SUMMARY TAB ─── -->
     <div id="tab-summary" style="display:none;">
-
-      <!-- Category breakdown -->
       <div class="card mb-4">
         <div class="card-body p-4">
           <h5 class="fw-bold mb-3"><i class="fas fa-chart-bar text-primary me-2"></i>Category Breakdown</h5>
           <div id="catBreakdown"></div>
         </div>
       </div>
-
-      <!-- Per-person spending -->
       <div class="card mb-4">
         <div class="card-body p-4">
           <h5 class="fw-bold mb-3"><i class="fas fa-users text-info me-2"></i>Spending Per Person</h5>
           <div id="perPersonSpend"></div>
         </div>
       </div>
-
-      <!-- Balance sheet -->
       <div class="card mb-4">
         <div class="card-body p-4">
           <h5 class="fw-bold mb-1"><i class="fas fa-balance-scale text-warning me-2"></i>Balance Sheet</h5>
@@ -367,8 +333,6 @@
           <div id="balanceSheet"></div>
         </div>
       </div>
-
-      <!-- Settlement -->
       <div class="card">
         <div class="card-body p-4">
           <h5 class="fw-bold mb-1"><i class="fas fa-handshake text-success me-2"></i>Who Pays Whom</h5>
@@ -378,10 +342,74 @@
       </div>
     </div>
 
-    <!-- ─────────────────── ADMIN TAB ─────────────────── -->
-    <div id="tab-admin" style="display:none;">
+    <!-- ─── SETTLE TAB ─── -->
+    <div id="tab-settle" style="display:none;">
 
-      <!-- Lock screen -->
+      <!-- Outstanding settlements -->
+      <div class="card mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-1"><i class="fas fa-clock text-warning me-2"></i>Outstanding Settlements</h5>
+          <p class="text-muted small mb-3">Mark payments as done once someone transfers the money</p>
+          <div id="pendingSettlements"></div>
+        </div>
+      </div>
+
+      <!-- Record a manual settlement -->
+      <div class="card mb-4">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3"><i class="fas fa-plus-circle text-success me-2"></i>Record a Settlement Payment</h5>
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="form-label fw-semibold">From (who paid)</label>
+              <select class="form-select" id="settleFrom">
+                <option value="">Select…</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">To (who received)</label>
+              <select class="form-select" id="settleTo">
+                <option value="">Select…</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">Amount (₹)</label>
+              <input type="number" class="form-control" id="settleAmount" placeholder="0" min="1" step="0.01" />
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-semibold">Date</label>
+              <input type="date" class="form-control" id="settleDate" />
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Mode</label>
+              <select class="form-select" id="settleMode">
+                <option>UPI</option><option>Cash</option>
+                <option>Bank Transfer</option><option>Other</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-semibold">Notes</label>
+              <input type="text" class="form-control" id="settleNotes" placeholder="Optional reference / note" />
+            </div>
+            <div class="col-12">
+              <button class="btn btn-primary w-100 py-2" onclick="recordSettlement()">
+                <i class="fas fa-check-circle me-2"></i>Record Settlement
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settlement history -->
+      <div class="card">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3"><i class="fas fa-history text-muted me-2"></i>Settlement History</h5>
+          <div id="settlementHistory"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── ADMIN TAB ─── -->
+    <div id="tab-admin" style="display:none;">
       <div id="adminLocked" class="card">
         <div class="card-body py-5 text-center">
           <div style="font-size:2.5rem;">🔐</div>
@@ -397,10 +425,7 @@
         </div>
       </div>
 
-      <!-- Admin panel -->
       <div id="adminPanel" style="display:none;">
-
-        <!-- Members -->
         <div class="card mb-4">
           <div class="card-body p-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
@@ -421,7 +446,6 @@
           </div>
         </div>
 
-        <!-- Settings -->
         <div class="card mb-4">
           <div class="card-body p-4">
             <h5 class="fw-bold mb-3"><i class="fas fa-sliders text-muted me-2"></i>Settings</h5>
@@ -433,24 +457,27 @@
           </div>
         </div>
 
-        <!-- Danger zone -->
         <div class="card" style="border: 1.5px solid #fecaca;">
           <div class="card-body p-4">
             <h5 class="fw-bold text-danger mb-2"><i class="fas fa-triangle-exclamation me-2"></i>Danger Zone</h5>
             <p class="text-muted small mb-3">These actions are permanent and cannot be undone.</p>
-            <button class="btn btn-outline-danger" onclick="deleteAllExpenses()">
-              <i class="fas fa-trash me-2"></i>Delete All Expenses
-            </button>
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-outline-danger" onclick="deleteAllExpenses()">
+                <i class="fas fa-trash me-2"></i>Delete All Expenses
+              </button>
+              <button class="btn btn-outline-danger" onclick="deleteAllSettlements()">
+                <i class="fas fa-trash me-2"></i>Delete All Settlements
+              </button>
+            </div>
           </div>
         </div>
-
-      </div><!-- /adminPanel -->
+      </div>
     </div>
+
   </div>
-</div><!-- /mainApp -->
+</div>
 
-
-<!-- ── PHOTO MODAL ── -->
+<!-- PHOTO MODAL -->
 <div class="modal fade" id="photoModal" tabindex="-1">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
@@ -466,7 +493,7 @@
   </div>
 </div>
 
-<!-- ── EDIT MODAL ── -->
+<!-- EDIT MODAL -->
 <div class="modal fade" id="editModal" tabindex="-1">
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
@@ -479,7 +506,7 @@
   </div>
 </div>
 
-<!-- ── TOAST ── -->
+<!-- TOAST -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
   <div id="appToast" class="toast align-items-center border-0" role="alert">
     <div class="d-flex">
@@ -490,9 +517,6 @@
 </div>
 
 
-<!-- ══════════════════════════════════════════════════════════════
-     SCRIPT
-     ══════════════════════════════════════════════════════════════ -->
 <script>
 // ================================================================
 //  ⚙️  CONFIGURATION
@@ -506,20 +530,17 @@ const firebaseConfig = {
   appId:             "1:477257354813:web:1204a406275dd0057c6454"
 };
 
-const ADMIN_PASSWORD = "himachal2026";   // ← Change this!
+const ADMIN_PASSWORD = "himachal2026";
 const DEFAULT_TRIP   = "Himachal Trip Expenses";
-
-// Set to true ONLY if you successfully enabled Firebase Storage
 const ENABLE_PHOTOS  = false;
 // ================================================================
 
-// ── State ──────────────────────────────────────────────────────
 let db, storage;
-let members  = [];
-let expenses = [];
-let currentTab = "expenses";
+let members     = [];
+let expenses    = [];
+let settlements = [];  // NEW: settlement payment records
+let currentTab  = "expenses";
 
-// ── Boot ───────────────────────────────────────────────────────
 const configured = firebaseConfig.projectId !== "YOUR_PROJECT_ID";
 
 if (configured) {
@@ -534,37 +555,39 @@ if (configured) {
   document.getElementById("setupScreen").style.display = "flex";
 }
 
-// ── Init ───────────────────────────────────────────────────────
 async function bootApp() {
-  // Load settings
   try {
     const cfg = await db.collection("settings").doc("config").get();
-    if (cfg.exists && cfg.data().tripName) {
-      setTripName(cfg.data().tripName);
-    }
+    if (cfg.exists && cfg.data().tripName) setTripName(cfg.data().tripName);
   } catch (_) {}
 
-  // Real-time members
   db.collection("members").orderBy("createdAt").onSnapshot(snap => {
     members = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     refreshMemberDropdowns();
     refreshSplitPills();
     renderMembersList();
     updateStats();
+    renderSettleDropdowns();
   }, err => showToast("Firestore error: " + err.message, "danger"));
 
-  // Real-time expenses
   db.collection("expenses").orderBy("date", "desc").onSnapshot(snap => {
     expenses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
     renderExpenses();
     renderSummary();
     updateStats();
+    if (currentTab === "settle") renderSettleTab();
   }, err => showToast("Firestore error: " + err.message, "danger"));
 
-  // Default datetime
-  setDefaultDate();
+  // NEW: Real-time settlements
+  db.collection("settlements").orderBy("createdAt", "desc").onSnapshot(snap => {
+    settlements = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    updateStats();
+    if (currentTab === "settle") renderSettleTab();
+  }, err => showToast("Firestore error: " + err.message, "danger"));
 
-  // Show photo notice if Storage is not enabled
+  setDefaultDate();
+  setDefaultSettleDate();
+
   const notice = document.getElementById("photoDisabledNotice");
   const photoInput = document.getElementById("expPhoto");
   if (!ENABLE_PHOTOS) {
@@ -581,9 +604,15 @@ function setDefaultDate() {
   if (el) el.value = local;
 }
 
-// ── Tab switching ───────────────────────────────────────────────
+function setDefaultSettleDate() {
+  const today = new Date().toISOString().slice(0, 10);
+  const el = document.getElementById("settleDate");
+  if (el) el.value = today;
+}
+
+// ── Tab switching ──────────────────────────────────────────────
 function showTab(tab) {
-  ["expenses","add","summary","admin"].forEach(t => {
+  ["expenses","add","summary","settle","admin"].forEach(t => {
     document.getElementById("tab-" + t).style.display = (t === tab) ? "block" : "none";
   });
   document.querySelectorAll("#mainTabs .nav-link").forEach(a => {
@@ -592,17 +621,20 @@ function showTab(tab) {
   currentTab = tab;
   if (tab === "add") setDefaultDate();
   if (tab === "summary") renderSummary();
+  if (tab === "settle") renderSettleTab();
 }
 
-// ── Stats ───────────────────────────────────────────────────────
+// ── Stats ──────────────────────────────────────────────────────
 function updateStats() {
-  const total = expenses.reduce((s, e) => s + (e.amount || 0), 0);
+  const total    = expenses.reduce((s, e) => s + (e.amount || 0), 0);
+  const settled  = settlements.reduce((s, e) => s + (e.amount || 0), 0);
   setText("statTotal",   "₹" + fmtINR(total));
   setText("statCount",   expenses.length);
   setText("statMembers", members.length);
+  setText("statSettled", "₹" + fmtINR(settled));
 }
 
-// ── Render expenses list ────────────────────────────────────────
+// ── Render expenses ────────────────────────────────────────────
 function clearFilters() {
   ["filterCat","filterPerson","filterDate"].forEach(id => {
     const el = document.getElementById(id);
@@ -657,7 +689,7 @@ function renderExpenses() {
         </div>
         <div class="small">
           <span class="text-success fw-semibold"><i class="fas fa-wallet me-1"></i>${esc(e.paidBy||"")}</span>
-          ${splitStr ? `<span class="text-muted ms-2">· ${esc(splitStr)}</span>` : ""}
+          ${splitStr ? `<span class="text-muted ms-2">· split with ${esc(splitStr)}</span>` : ""}
         </div>
         ${e.splitWith?.length > 1 ? `<div class="text-muted" style="font-size:.78rem;">₹${fmtINR(perHead)}/person</div>` : ""}
         ${e.notes ? `<div class="text-muted fst-italic mt-1" style="font-size:.82rem;">"${esc(e.notes)}"</div>` : ""}
@@ -676,12 +708,12 @@ function renderExpenses() {
   }).join("");
 }
 
-// ── Add expense ─────────────────────────────────────────────────
+// ── Add expense ────────────────────────────────────────────────
 async function addExpense(ev) {
   ev.preventDefault();
   const btn = document.getElementById("addBtn");
 
-  const splitWith = Array.from(document.querySelectorAll(".split-cb:checked")).map(c => c.value);
+  const splitWith = [...splitSelected];
   if (!splitWith.length) { showToast("Select at least one person for the split.", "warning"); return; }
 
   btn.disabled = true;
@@ -694,8 +726,6 @@ async function addExpense(ev) {
       const ref = storage.ref(`receipts/${Date.now()}_${file.name}`);
       await ref.put(file);
       photoUrl = await ref.getDownloadURL();
-    } else if (file && !storage) {
-      showToast("Photo upload skipped — Storage not enabled.", "warning");
     }
 
     await db.collection("expenses").add({
@@ -725,7 +755,6 @@ async function addExpense(ev) {
   }
 }
 
-// ── Delete expense ──────────────────────────────────────────────
 async function delExpense(id) {
   if (!confirm("Delete this expense?")) return;
   try {
@@ -734,13 +763,13 @@ async function delExpense(id) {
   } catch (err) { showToast(err.message, "danger"); }
 }
 
-// ── Edit expense ────────────────────────────────────────────────
+// ── Edit expense ───────────────────────────────────────────────
 function openEdit(id) {
   const e = expenses.find(x => x.id === id);
   if (!e) return;
 
-  const d      = toDate(e.date);
-  const off    = d.getTimezoneOffset() * 60000;
+  const d       = toDate(e.date);
+  const off     = d.getTimezoneOffset() * 60000;
   const dtLocal = new Date(d.getTime() - off).toISOString().slice(0,16);
 
   const paidByOpts = members.map(m =>
@@ -748,10 +777,9 @@ function openEdit(id) {
 
   const splitPills = members.map(m => {
     const on = (e.splitWith||[]).includes(m.name);
-    return `<label class="split-pill ${on?"on":""}" onclick="toggleEditPill(this)">
-      <input type="checkbox" class="edit-cb" value="${m.name}" ${on?"checked":""} style="display:none;">
-      <div class="avatar avatar-sm">${m.name[0].toUpperCase()}</div>${esc(m.name)}
-    </label>`;
+    return `<div class="split-pill ${on?"on":""}" data-name="${m.name}" onclick="toggleEditPill(this)">
+      <div class="avatar avatar-sm">${m.name[0].toUpperCase()}</div>${m.name}
+    </div>`;
   }).join("");
 
   document.getElementById("editModalBody").innerHTML = `
@@ -791,6 +819,7 @@ function openEdit(id) {
   </div>
   <div class="col-12">
     <label class="form-label fw-semibold">Split With</label>
+    <div class="text-muted small mb-2">Tap a name to toggle</div>
     <div class="d-flex flex-wrap gap-2 mt-1">${splitPills}</div>
   </div>
   <div class="col-12">
@@ -808,14 +837,13 @@ function openEdit(id) {
   new bootstrap.Modal(document.getElementById("editModal")).show();
 }
 
+// For Edit modal split pills — uses data-name attribute, no checkbox race condition
 function toggleEditPill(el) {
   el.classList.toggle("on");
-  const cb = el.querySelector("input");
-  cb.checked = !cb.checked;
 }
 
 async function saveEdit(id) {
-  const splitWith = Array.from(document.querySelectorAll(".edit-cb:checked")).map(c => c.value);
+  const splitWith = Array.from(document.querySelectorAll("#editModalBody .split-pill.on")).map(el => el.dataset.name);
   try {
     await db.collection("expenses").doc(id).update({
       description: val("e-desc"),
@@ -833,13 +861,12 @@ async function saveEdit(id) {
   } catch (err) { showToast(err.message, "danger"); }
 }
 
-// ── Photo modal ─────────────────────────────────────────────────
 function viewPhoto(url) {
   document.getElementById("photoModalImg").src = url;
   new bootstrap.Modal(document.getElementById("photoModal")).show();
 }
 
-// ── Summary ─────────────────────────────────────────────────────
+// ── Summary ────────────────────────────────────────────────────
 function renderSummary() {
   renderCatBreakdown();
   renderPerPersonSpend();
@@ -894,21 +921,31 @@ function renderPerPersonSpend() {
   }).join("");
 }
 
+// ── Balance calculation (accounts for recorded settlements) ────
 function calcBalances() {
   const bal = {};
   members.forEach(m => bal[m.name] = 0);
+
+  // Add from expenses
   expenses.forEach(e => {
     const split = e.splitWith || [];
-    const share = split.length > 0 ? (e.amount||0)/split.length : 0;
+    const share = split.length > 0 ? (e.amount||0) / split.length : 0;
     if (bal[e.paidBy] !== undefined) bal[e.paidBy] += (e.amount||0);
     split.forEach(p => { if (bal[p] !== undefined) bal[p] -= share; });
   });
+
+  // Adjust for recorded settlements
+  settlements.forEach(s => {
+    if (bal[s.from] !== undefined) bal[s.from] -= (s.amount||0);
+    if (bal[s.to]   !== undefined) bal[s.to]   += (s.amount||0);
+  });
+
   return bal;
 }
 
 function renderBalanceSheet() {
-  const bal  = calcBalances();
-  const el   = document.getElementById("balanceSheet");
+  const bal = calcBalances();
+  const el  = document.getElementById("balanceSheet");
   if (!members.length) { el.innerHTML = `<div class="text-muted text-center py-3">No members added</div>`; return; }
   el.innerHTML = Object.entries(bal).sort((a,b)=>b[1]-a[1]).map(([name, b]) => {
     const pos = b >= 0;
@@ -926,7 +963,7 @@ function renderBalanceSheet() {
   }).join("");
 }
 
-function renderSettlement() {
+function calcSettlementTxns() {
   const bal  = calcBalances();
   const cred = Object.entries(bal).filter(([,b])=>b>0.5).map(([n,b])=>({name:n,amt:Math.round(b)}));
   const debt = Object.entries(bal).filter(([,b])=>b<-0.5).map(([n,b])=>({name:n,amt:Math.round(-b)}));
@@ -940,6 +977,11 @@ function renderSettlement() {
     if (C[ci].amt < 1) ci++;
     if (D[di].amt < 1) di++;
   }
+  return txns;
+}
+
+function renderSettlement() {
+  const txns = calcSettlementTxns();
   const el = document.getElementById("settlementList");
   if (!txns.length) {
     el.innerHTML = `<div class="text-center py-3 text-muted"><i class="fas fa-check-circle text-success me-2"></i>All settled up! 🎉</div>`;
@@ -950,12 +992,147 @@ function renderSettlement() {
       <div class="avatar">${t.from[0].toUpperCase()}</div>
       <span class="fw-semibold">${esc(t.from)}</span>
       <i class="fas fa-arrow-right text-muted mx-1"></i>
+      <div class="avatar">${t.to[0].toUpperCase()}</div>
       <span class="fw-semibold">${esc(t.to)}</span>
       <span class="ms-auto fw-bold text-danger">₹${fmtINR(t.amt)}</span>
     </div>`).join("");
 }
 
-// ── Members ─────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════════════
+//  SETTLE TAB
+// ═══════════════════════════════════════════════════════════════
+
+function renderSettleDropdowns() {
+  ["settleFrom","settleTo"].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = '<option value="">Select…</option>' +
+      members.map(m => `<option ${m.name===cur?"selected":""}>${m.name}</option>`).join("");
+  });
+}
+
+function renderSettleTab() {
+  renderPendingSettlements();
+  renderSettlementHistory();
+  renderSettleDropdowns();
+}
+
+function renderPendingSettlements() {
+  const txns = calcSettlementTxns();
+  const el   = document.getElementById("pendingSettlements");
+
+  if (!txns.length) {
+    el.innerHTML = `<div class="text-center py-4 text-muted">
+      <i class="fas fa-check-circle text-success me-2" style="font-size:1.5rem;"></i>
+      <div class="mt-2 fw-semibold">All settled up! 🎉</div>
+      <div class="small">No outstanding payments</div>
+    </div>`;
+    return;
+  }
+
+  el.innerHTML = txns.map((t, i) =>
+    `<div class="settle-needed-row" id="pending-${i}">
+      <div class="avatar">${t.from[0].toUpperCase()}</div>
+      <div>
+        <div class="fw-semibold">${esc(t.from)} <i class="fas fa-arrow-right text-muted mx-1"></i> ${esc(t.to)}</div>
+        <div class="text-muted small">${esc(t.from)} owes ₹${fmtINR(t.amt)} to ${esc(t.to)}</div>
+      </div>
+      <div class="ms-auto d-flex align-items-center gap-2 flex-wrap">
+        <span class="fw-bold text-danger fs-6">₹${fmtINR(t.amt)}</span>
+        <button class="btn btn-sm btn-success" onclick="quickSettle('${t.from}','${t.to}',${t.amt})">
+          <i class="fas fa-check me-1"></i>Mark Paid
+        </button>
+      </div>
+    </div>`
+  ).join("");
+}
+
+// Quick settle: pre-fills and submits the full amount
+async function quickSettle(from, to, amount) {
+  if (!confirm(`Record that ${from} paid ₹${fmtINR(amount)} to ${to}?`)) return;
+  try {
+    await db.collection("settlements").add({
+      from, to,
+      amount,
+      mode:      "UPI",
+      notes:     "Quick settle",
+      date:      new Date().toISOString().slice(0,10),
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    showToast(`Settlement recorded: ${from} → ${to} ₹${fmtINR(amount)} ✅`, "success");
+  } catch (err) { showToast(err.message, "danger"); }
+}
+
+async function recordSettlement() {
+  const from   = val("settleFrom");
+  const to     = val("settleTo");
+  const amount = parseFloat(val("settleAmount"));
+  const date   = val("settleDate");
+  const mode   = val("settleMode");
+  const notes  = val("settleNotes");
+
+  if (!from || !to) { showToast("Select both From and To.", "warning"); return; }
+  if (from === to)  { showToast("From and To cannot be the same person.", "warning"); return; }
+  if (!amount || amount <= 0) { showToast("Enter a valid amount.", "warning"); return; }
+
+  try {
+    await db.collection("settlements").add({
+      from, to, amount, date, mode, notes,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    document.getElementById("settleFrom").value   = "";
+    document.getElementById("settleTo").value     = "";
+    document.getElementById("settleAmount").value = "";
+    document.getElementById("settleNotes").value  = "";
+    setDefaultSettleDate();
+    showToast(`Settlement recorded! ${from} → ${to} ₹${fmtINR(amount)} ✅`, "success");
+  } catch (err) { showToast(err.message, "danger"); }
+}
+
+function renderSettlementHistory() {
+  const el = document.getElementById("settlementHistory");
+  if (!settlements.length) {
+    el.innerHTML = `<div class="empty" style="padding:30px 20px;"><i class="fas fa-handshake"></i>No settlements recorded yet</div>`;
+    return;
+  }
+  el.innerHTML = settlements.map(s => {
+    const dateStr = s.date ? new Date(s.date + "T00:00:00").toLocaleDateString("en-IN", { day:"numeric", month:"short", year:"numeric" }) : "";
+    const modeKey = (s.mode||"upi").toLowerCase().replace(/\s/g,"").replace("transfer","");
+    return `<div class="card settle-card mb-3">
+  <div class="card-body p-3">
+    <div class="d-flex align-items-start gap-2">
+      <div class="flex-grow-1">
+        <div class="d-flex align-items-center flex-wrap gap-1 mb-1">
+          <span class="fw-bold">${esc(s.from)}</span>
+          <i class="fas fa-arrow-right text-success mx-1"></i>
+          <span class="fw-bold">${esc(s.to)}</span>
+          <span class="tag mode-${modeKey} ms-1">${s.mode||"UPI"}</span>
+        </div>
+        ${dateStr ? `<div class="text-muted small"><i class="fas fa-calendar-alt me-1"></i>${dateStr}</div>` : ""}
+        ${s.notes ? `<div class="text-muted fst-italic" style="font-size:.82rem;">"${esc(s.notes)}"</div>` : ""}
+      </div>
+      <div class="text-end flex-shrink-0">
+        <div class="amount-lg text-success">₹${fmtINR(s.amount)}</div>
+        <button class="btn btn-sm btn-outline-danger mt-1" onclick="deleteSettlement('${s.id}')">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>`;
+  }).join("");
+}
+
+async function deleteSettlement(id) {
+  if (!confirm("Delete this settlement record?")) return;
+  try {
+    await db.collection("settlements").doc(id).delete();
+    showToast("Settlement deleted.", "warning");
+  } catch (err) { showToast(err.message, "danger"); }
+}
+
+// ── Members ────────────────────────────────────────────────────
 function refreshMemberDropdowns() {
   const pb  = document.getElementById("expPaidBy");
   const fp  = document.getElementById("filterPerson");
@@ -968,32 +1145,39 @@ function refreshMemberDropdowns() {
     members.map(m => `<option>${m.name}</option>`).join("");
 }
 
+// Split state — pure JS Set, no hidden checkboxes (fixes unreliable toggle bug)
+const splitSelected = new Set();
+
 function refreshSplitPills() {
   const c = document.getElementById("splitContainer");
   if (!c) return;
-  c.innerHTML = members.map(m =>
-    `<label class="split-pill" onclick="toggleSplitPill(this)">
-      <input type="checkbox" class="split-cb" value="${m.name}" style="display:none;">
-      <div class="avatar avatar-sm">${m.name[0].toUpperCase()}</div>${esc(m.name)}
-    </label>`).join("");
+  c.innerHTML = members.map(m => {
+    const on = splitSelected.has(m.name);
+    return `<div class="split-pill ${on?"on":""}" data-name="${m.name}" onclick="toggleSplitPill(this)">
+      <div class="avatar avatar-sm">${m.name[0].toUpperCase()}</div>${m.name}
+    </div>`;
+  }).join("");
 }
 
 function toggleSplitPill(el) {
-  el.classList.toggle("on");
-  const cb = el.querySelector("input");
-  cb.checked = !cb.checked;
-}
-function selectAllSplit() {
-  document.querySelectorAll(".split-pill").forEach(el => {
-    el.classList.add("on");
-    el.querySelector("input").checked = true;
-  });
-}
-function clearSplit() {
-  document.querySelectorAll(".split-pill").forEach(el => {
+  const name = el.dataset.name;
+  if (splitSelected.has(name)) {
+    splitSelected.delete(name);
     el.classList.remove("on");
-    el.querySelector("input").checked = false;
-  });
+  } else {
+    splitSelected.add(name);
+    el.classList.add("on");
+  }
+}
+
+function selectAllSplit() {
+  members.forEach(m => splitSelected.add(m.name));
+  document.querySelectorAll("#splitContainer .split-pill").forEach(el => el.classList.add("on"));
+}
+
+function clearSplit() {
+  splitSelected.clear();
+  document.querySelectorAll("#splitContainer .split-pill").forEach(el => el.classList.remove("on"));
 }
 
 function renderMembersList() {
@@ -1032,7 +1216,7 @@ async function removeMember(id, name) {
   showToast(`${name} removed.`, "warning");
 }
 
-// ── Admin ───────────────────────────────────────────────────────
+// ── Admin ──────────────────────────────────────────────────────
 function checkAdminPw() {
   if (document.getElementById("adminPwInput").value === ADMIN_PASSWORD) {
     document.getElementById("adminLocked").style.display = "none";
@@ -1064,7 +1248,7 @@ function setTripName(name) {
 
 async function deleteAllExpenses() {
   if (!confirm("Delete ALL expenses permanently? This cannot be undone.")) return;
-  if (!confirm("Are you absolutely sure? Click OK to confirm deletion.")) return;
+  if (!confirm("Are you absolutely sure?")) return;
   const snap  = await db.collection("expenses").get();
   const batch = db.batch();
   snap.docs.forEach(d => batch.delete(d.ref));
@@ -1072,7 +1256,16 @@ async function deleteAllExpenses() {
   showToast("All expenses deleted.", "warning");
 }
 
-// ── Toast ───────────────────────────────────────────────────────
+async function deleteAllSettlements() {
+  if (!confirm("Delete ALL settlement records permanently? This cannot be undone.")) return;
+  const snap  = await db.collection("settlements").get();
+  const batch = db.batch();
+  snap.docs.forEach(d => batch.delete(d.ref));
+  await batch.commit();
+  showToast("All settlements deleted.", "warning");
+}
+
+// ── Toast ──────────────────────────────────────────────────────
 function showToast(msg, type="success") {
   const el = document.getElementById("appToast");
   el.className = `toast align-items-center border-0 text-bg-${type}`;
@@ -1080,7 +1273,7 @@ function showToast(msg, type="success") {
   new bootstrap.Toast(el, { delay: 3200 }).show();
 }
 
-// ── Helpers ─────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────
 function val(id)       { return document.getElementById(id)?.value || ""; }
 function setText(id,v) { const el=document.getElementById(id); if(el) el.textContent=v; }
 function fmtINR(n)     { return Number(n).toLocaleString("en-IN"); }
