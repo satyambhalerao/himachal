@@ -627,7 +627,7 @@ function renderPools(){
     const pct=collected>0?Math.min(100,Math.round(spent/collected*100)):0;
     const ck=pool.category.toLowerCase().replace(/\s/g,"");
     const cbm={};contribs.forEach(c=>{cbm[c.from]=(cbm[c.from]||0)+(c.amount||0);});
-    const notYet=members.filter(m=>!cbm[m.name]&&m.name!==pool.manager).map(m=>m.name);
+    const notYet=members.filter(m=>!cbm[m.name]).map(m=>m.name);
     const crows=Object.entries(cbm).map(([nm,amt])=>`<div class="contrib-row"><div class="avatar avatar-sm">${nm[0].toUpperCase()}</div><span class="fw-semibold flex-grow-1">${esc(nm)}</span><span class="text-success fw-semibold">Rs.${fmtINR(amt)}</span></div>`).join("");
     return `<div class="card pool-card mb-4"><div class="card-body p-4">
 <div class="d-flex align-items-start justify-content-between mb-2">
@@ -642,7 +642,7 @@ function renderPools(){
 <div class="pool-bar-wrap"><div class="pool-bar-fill ${over?"pool-bar-over":"pool-bar-ok"}" style="width:${pct}%"></div></div>
 <div class="d-flex justify-content-between mt-1" style="font-size:.72rem;color:var(--muted);"><span>${pct}% spent</span><span>${over?"Over budget!":100-pct+"% left"}</span></div>
 <div class="mt-3">
-  <div class="fw-semibold small mb-2">Contributions (${contribs.length} of ${Math.max(0,members.length-1)} members)</div>
+  <div class="fw-semibold small mb-2">Contributions (${contribs.length} of ${members.length} members)</div>
   ${crows||'<div class="text-muted small">No contributions recorded yet</div>'}
   ${notYet.length?`<div class="text-muted small mt-2">⏳ Pending: ${notYet.join(", ")}</div>`:'<div class="text-success small mt-2">✅ All members contributed!</div>'}
 </div>
@@ -657,10 +657,11 @@ function openContribModal(poolId,poolName,manager){
   document.getElementById("contribModalTitle").innerHTML=`<i class="fas fa-coins me-2 text-warning"></i>${poolName} — Contributions`;
   const existing={};
   poolContribs.filter(c=>c.poolId===poolId).forEach(c=>{existing[c.from]=(existing[c.from]||0)+(c.amount||0);});
-  const mrows=members.filter(m=>m.name!==manager).map(m=>`
+  // Include ALL members (including manager who may contribute their own money)
+  const mrows=members.map(m=>`
 <div class="d-flex align-items-center gap-2 mb-2">
   <div class="avatar avatar-sm">${m.name[0].toUpperCase()}</div>
-  <span class="fw-semibold flex-grow-1">${esc(m.name)}</span>
+  <span class="fw-semibold flex-grow-1">${esc(m.name)}${m.name===manager?' <span class="tag mode-cash ms-1">manager</span>':''}</span>
   <div style="width:130px;"><input type="number" class="form-control form-control-sm" id="contrib-${m.name.replace(/\s/g,"_")}" placeholder="Rs." min="0" step="1" value="${existing[m.name]||""}" /></div>
 </div>`).join("");
   document.getElementById("contribModalBody").innerHTML=`<div class="p-2">
@@ -674,7 +675,7 @@ function openContribModal(poolId,poolName,manager){
 
 function fillFixed(poolId,manager){
   const amt=parseFloat(document.getElementById("fixedAmt").value)||0;
-  members.filter(m=>m.name!==manager).forEach(m=>{
+  members.forEach(m=>{
     const el=document.getElementById("contrib-"+m.name.replace(/\s/g,"_"));
     if(el)el.value=amt;
   });
@@ -685,7 +686,7 @@ async function saveContribs(poolId,manager){
   // Delete all existing contribs for this pool first
   poolContribs.filter(c=>c.poolId===poolId).forEach(c=>{batch.delete(db.collection("poolContribs").doc(c.id));});
   let count=0;
-  for(const m of members.filter(m=>m.name!==manager)){
+  for(const m of members){
     const el=document.getElementById("contrib-"+m.name.replace(/\s/g,"_"));
     const amt=parseFloat(el?.value||0);
     if(amt>0){
